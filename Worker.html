@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<script src="js/jquery-3.3.1.min.js"></script>
+<head>
+    <meta charset="UTF-8">
+    <title>用户管理</title>
+</head>
+
+    <style type="text/css">
+
+    table {
+        border-collapse: collapse;
+        margin: 0 auto;
+        text-align: center;
+    }
+    table td, table th {
+        border: 1px solid #cad9ea;
+        color: #666;
+        height: 30px;
+    }
+    table thead th {
+        background-color: #CCE8EB;
+        width: 100px;
+    }
+    table tr:nth-child(odd) {
+        background: #fff;
+    }
+    table tr:nth-child(even) {
+        background: #F5FAFA;
+    }
+    </style>
+
+    <script>
+        $.post("UserServlet?method=loadInfo","",function (data){
+            if(data.success){
+                if(data.data.position_id!=5){
+                    alert("权限不过");
+                    $("body").html("");
+                }
+            }else {
+                alert("权限不过");
+                $("body").html("");
+            }
+        })
+    </script>
+<body>
+<input id="number" placeholder="输入职工号"><button id="search">查看</button>
+<table id="Info"></table>
+<br><br>
+<div>
+    <button id="change">修改职位</button>
+<input id="upnumber" hidden="hidden" placeholder="输入职工号">
+<input id="uppo" hidden="hidden" placeholder="输入修改职位">
+    <button id="ch" hidden="hidden">修改</button>
+</div>
+<script>
+    $(function (){
+        $("#search").click(function (){
+            var sinfo = $("#number").val();
+            var json={"sinfo":sinfo}
+            $.post("UserServlet?method=searchWorker",json,function (data){
+               var li ='<tr><th>职工号</th><th>姓名</th><th>性别</th><th>入职日期</th><th>密码</th><th>电话</th></tr>';
+                if(data.success){
+                    for(i=0;i<data.data.length;i++){
+
+                        li +='<tr><td>'+data.data[i].number+'</td><td>'+data.data[i].name+'</td><td>'+data.data[i].gender+'</td><td>'+data.data[i].hiredate+'</td><td>'+data.data[i].password+'</td><td>'+data.data[i].phone_number+'</td></tr>';
+                    }
+                }
+                $("#Info").html(li);
+            })
+        })
+
+
+        $("#change").click(function (){
+            $("#uppo,#upnumber,#ch").removeAttr("hidden");
+        })
+        $("#ch").click(function (){
+            var number = $("#upnumber").val();
+            var position_id=$("#uppo").val();
+            var json={"number":number,"position_id":position_id}
+            $.post("UserServlet?method=changePosition",json,function (data){
+                if(data.success){
+                    alert(data.message);
+                    location.reload();
+                }else {
+                    alert(data.message);
+                }
+            })
+        })
+    })
+</script>
+</body>
+</html>
