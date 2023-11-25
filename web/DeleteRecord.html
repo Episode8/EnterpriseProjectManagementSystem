@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<script src="js/jquery-3.3.1.min.js"></script>
+<head>
+    <meta charset="UTF-8">
+    <title>相关删除记录</title>
+    <style>
+        td,th{
+            text-align: center;
+        }
+        td,tr,table,th{
+            border: 1px solid black;
+        }
+    </style>
+
+</head>
+<body>
+<table id="recordtable"></table>
+<script>
+
+
+   $(function (){
+       function formatDate(now){
+           const date = new Date(now);
+           var y =date.getFullYear();
+           var m =date.getMonth()+1;
+           var d =date.getDate();
+           var h =date.getHours();
+           var min=date.getUTCMinutes();
+           var s = date.getSeconds();
+           return y+'-'+m+'-'+d+' '+h+':'+min+':'+s;
+       }
+       $.post("UserServlet?method=deRecord","",function (data){
+           var li = '<tr><th></th><th>时间</th><th>记录</th></tr>';
+           if (data.success) {
+               for (i = 0; i < data.data.length; i++) {
+                   li += '<tr><td>' + i + '</td><td>' + formatDate(data.data[i].time) + '</td><td>' + data.data[i].record + '</td></tr>'
+               }
+           }
+           $("#recordtable").html(li);
+       })
+
+
+
+   })
+</script>
+</body>
+</html>

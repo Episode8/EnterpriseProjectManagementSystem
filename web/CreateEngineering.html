@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<script src="js/jquery-3.3.1.min.js"></script>
+<head>
+    <meta charset="UTF-8">
+    <title>创建小组</title>
+</head>
+
+<style type="text/css">
+    /* Basic Grey */
+    .basic-grey {
+        margin-left:auto;
+        margin-right:auto;
+        max-width: 500px;
+        background: #F7F7F7;
+        padding: 25px 15px 25px 10px;
+        font: 12px Georgia, "Times New Roman", Times, serif;
+        color: #888;
+        text-shadow: 1px 1px 1px #FFF;
+        border:1px solid #E4E4E4;
+    }
+    .basic-grey h1 {
+        font-size: 25px;
+        padding: 0px 0px 10px 40px;
+        display: block;
+        border-bottom:1px solid #E4E4E4;
+        margin: -10px -15px 30px -10px;
+        color: #888;
+    }
+    .basic-grey h1>span {
+        display: block;
+        font-size: 11px;
+    }
+
+    .basic-grey label {
+        display: block;
+        margin: 0px;
+    }
+
+    .basic-grey label>span {
+        float: left;
+        width: 20%;
+        text-align: right;
+        padding-right: 10px;
+        margin-top: 10px;
+        color: #888;
+    }
+    .basic-grey input[type="text"], .basic-grey input[type="date"], .basic-grey textarea {
+        border: 1px solid #DADADA;
+        color: #888;
+        height: 30px;
+        margin-bottom: 16px;
+        margin-right: 6px;
+        margin-top: 2px;
+        outline: 0 none;
+        padding: 3px 3px 3px 5px;
+        width: 70%;
+        font-size: 12px;
+        line-height:15px;
+        box-shadow: inset 0px 1px 4px #ECECEC;
+        -moz-box-shadow: inset 0px 1px 4px #ECECEC;
+        -webkit-box-shadow: inset 0px 1px 4px #ECECEC;
+    }
+    .basic-grey textarea{
+        padding: 5px 3px 3px 5px;
+    }
+
+    .basic-grey textarea{
+        height:100px;
+    }
+    .basic-grey .button {
+        background: #E27575;
+        border: none;
+        padding: 10px 25px 10px 25px;
+        color: #FFF;
+        box-shadow: 1px 1px 5px #B6B6B6;
+        border-radius: 3px;
+        text-shadow: 1px 1px 1px #9E3F3F;
+        cursor: pointer;
+    }
+    .basic-grey .button:hover {
+        background: #CF7A7A
+    }
+</style>
+
+<script>
+    function checkId () {
+        var id = $("#id").val();
+
+        if (id!="") {
+            $("#id").css("border", "1px solid green");
+            return true;
+        } else {
+            $("#id").css("border", "1px solid red");
+            return false;
+        }
+
+    }
+
+    function checkName () {
+        var name = $("#name").val();
+
+        if (name!="") {
+            $("#name").css("border", "1px solid green");
+            return true;
+        } else {
+            $("#name").css("border", "1px solid red");
+            return false;
+        }
+
+    }
+    function checkTask_info () {
+        var task_info = $("#task_info").val();
+
+        if (task_info!="") {
+            $("#task_info").css("border", "1px solid green");
+            return true;
+        } else {
+            $("#task_info").css("border", "1px solid red");
+            return false;
+        }
+
+    }
+    function checkTask_dif () {
+        var task_dif = $("#task_dif").val();
+
+        if (task_dif!="") {
+            $("#task_dif").css("border", "1px solid green");
+            return true;
+        } else {
+            $("#task_dif").css("border", "1px solid red");
+            return false;
+        }
+
+    }
+    function checkTask_deadline () {
+        var task_deadline = $("#task_deadline").val();
+
+        if (task_deadline!="") {
+            $("#task_deadline").css("border", "1px solid green");
+            return true;
+        } else {
+            $("#task_deadline").css("border", "1px solid red");
+            return false;
+        }
+
+    }
+    function checkManger_num(){
+        var manager_num =$("#manager_num").val();
+        if (manager_num!="") {
+            $("#manager_num").css("border", "1px solid green");
+            return true;
+        } else {
+            $("#manager_num").css("border", "1px solid red");
+            return false;
+        }
+    }
+    function checkLeader_num(){
+        var leader_num =$("#leader_num").val();
+        if (leader_num!="") {
+            $("#leader_num").css("border", "1px solid green");
+            return true;
+        } else {
+            $("#leader_num").css("border", "1px solid red");
+            return false;
+        }
+    }
+
+    $(function (){
+        $("#form").submit(function (){
+            if(checkId()&&checkName()&&checkTask_info()&&checkTask_dif()&&checkTask_deadline()&&checkManger_num()&&checkLeader_num()){
+                $.post("EngineeringGroupServlet?method=createEGroup",$(this).serialize(),function (data) {
+                    if(data.success){
+                        alert(data.message);
+                        location.href="EngineeringGroup.html";
+                    }else {
+                        alert(data.message);
+                    }
+                })
+            }
+            return false;
+        })
+    });
+</script>
+<body>
+<form action="" method="post" id="form">
+    <div  class="basic-grey">
+        <h1>新建工程队
+            <span>Please fill all the texts in the fields.</span>
+        </h1>
+        <label>
+            <span>工程队id:</span>
+            <input id="id" type="text" name="id" placeholder="输入工程队id" />
+        </label>
+        <label>
+            <span>工程队名称:</span>
+            <input id="name" type="text" name="name" placeholder="输入工程队名称" />
+        </label>
+        <label>
+            <span>工程队任务:</span>
+            <textarea id="task_info" name="task_info" placeholder="输入工程队任务"></textarea>
+        </label>
+        <label>
+            <span>任务难度:</span>
+            <input id="task_dif" type="text" name="task_dif" placeholder="输入任务难度" />
+        </label>
+        <label>
+            <span>任务期限:</span>
+            <input id="task_deadline" type="date" name="task_deadline"  />
+        </label>
+        <label>
+            <span>施工经理:</span>
+            <input id="manager_num" type="text" name="manager_num" placeholder="输入经理职工号" />
+        </label>
+        <label>
+            <span>总负责人:</span>
+            <input id="leader_num" type="text" name="leader_num" placeholder="输入负责人职工号" />
+        </label>
+            <span>&nbsp;</span>
+            <input type="submit" class="button" value="创建" />
+        </label>
+    </div>
+</form>
+<button id="AllWorker">查看人员信息</button>
+<script>
+    $("#AllWorker").click(function (){
+        window.open("AllWorker.html");
+    })
+</script>
+</body>
+</html>

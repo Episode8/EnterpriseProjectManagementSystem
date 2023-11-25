@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<script src="js/jquery-3.3.1.min.js"></script>
+<head>
+    <meta charset="UTF-8">
+    <title>小组</title>
+
+    <style>
+        .div1{
+            border: #3498db solid 1px;
+            float: left;
+            width: 100px;
+            height: 600px;
+        }
+        #select{
+            width: auto;
+        }
+        .div1{
+            float: left;
+            margin: auto;
+        }
+        .div3{
+            float: right;
+        }
+
+
+        table {
+            border-collapse: collapse;
+            margin: 0 auto;
+            text-align: center;
+        }
+        table td, table th {
+            border: 1px solid #cad9ea;
+            color: #666;
+            height: 30px;
+        }
+        table thead th {
+            background-color: #CCE8EB;
+            width: 100px;
+        }
+        table tr:nth-child(odd) {
+            background: #fff;
+        }
+        table tr:nth-child(even) {
+            background: #F5FAFA;
+        }
+
+    </style>
+
+<script>
+    $.post("SmallGroupServlet?method=findGroupId","",function (data){
+        if(data.success){
+            var li = '<option value="">--请选择--</option>';
+            for(i=0;i<data.data.length;i++){
+              var id= data.data[i].id;
+               li+='<option value='+id+'>'+id+'</option>';
+            }
+            $("#select").html(li);
+        }else{
+            alert(data.message);
+        }
+    })
+
+
+
+
+
+
+    $(function (){
+
+        function groupAll (){
+            var val = $("select").val();
+            if(val!=''){
+                /**找小组信息*/
+                $.post("SmallGroupServlet?method=findGroupInfo&gid="+val,"",function (data){
+                    if(data.success){
+                        var li = "";
+                        li+= '小组名字:<textarea id="group_name" disabled>'+data.data.group_name +'</textarea><br>';
+                        li+= '所属工程:<textarea id="engineering_id" disabled>'+data.data.engineering_id +'</textarea><br>';
+                        li+= '包工头:<textarea id="contractor_num" disabled>'+data.data.contractor_num +'</textarea><br>';
+                        li+= '任务:<textarea id="task_info" disabled>'+data.data.task_info +'</textarea><br>';
+                        li+= '任务难度:<textarea id="task_dif" disabled>'+data.data.task_dif +'</textarea><br>';
+                        li+= '任务期限:<input type="text" id="task_deadline" value='+data.data.task_deadline+' disabled><br>';
+                        li+= '是否完成:<input type="text" id="sg_completion" value='+data.data.sg_completion +' disabled><br>';
+
+                        $("#div21").html(li);
+                    }else {
+                        alert(data.message);
+                    }
+                })
+                /**找小组人员*/
+                $.post("SmallGroupServlet?method=findGroupWorker&gid="+val,"",function (data){
+                    var li = '<tr><th>职工号</th><th>姓名</th><th>性别</th><th>入职日期</th><th>任务</th><th>任务完成</th><th>电话</th><th>删除</th></tr>';
+                    if(data.success){
+                        for(i=0;i<data.data.length;i++){
+                            li+='<tr><td>'+data.data[i].number+'</td><td>'+data.data[i].name+'</td><td>'+data.data[i].gender+'</td><td>'+data.data[i].hiredate+'</td><td>'+data.data[i].task+'</td><td>'+data.data[i].task_completion+'</td><td>'+data.data[i].phone_number+'</td><td><button class="bde" value='+data.data[i].number+'>删除</button></td></tr>'
+                        }
+                    }
+                    $("#table").html(li);
+                })
+
+            }
+        }
+
+        $("#select").change(groupAll);
+    })
+
+</script>
+</head>
+<body>
+
+<div id="div1"class="div1">
+    选择小组：<br>
+    <select id="select">
+
+    </select>
+
+</div>
+
+<div id="div2" class="div2">
+
+<div id="div21"></div>
+
+    <div id="div22">
+        <table id="table" width="800" ></table>
+    </div>
+
+
+</div>
+<a href="CreatGroup.html"><button id="create" hidden="hidden">创建小组</button></a>
+<button id="update"  hidden="hidden">修改小组信息</button><button id="up" hidden="hidden">提交修改</button>
+<button  id="worker" hidden="hidden">添加人员</button>
+<button  id="con" hidden="hidden">换包工头</button><button id="co" hidden="hidden">确认</button>
+<button id="complete" hidden="hidden">完成任务</button>
+<button  id="record" hidden="hidden">查看记录</button>
+<button id="degroup" hidden="hidden">删除小组</button>
+<a href="First.html"><button>返回首页</button></a>
+
+<input type="text" id="upnumber" placeholder="输入职工号" hidden="hidden">
+<textarea id="uptask" placeholder="分配任务" hidden="hidden"></textarea>
+<button id="upworker" hidden="hidden">添加</button>
+
+
+<div id="div4">
+    <table id="recordtable" ></table>
+</div>
+
+<div id="div3" class="div3">
+    <script>
+
+           $.post("UserServlet?method=loadInfo","",function (data){
+               if(data.success){
+                   if(data.data.position_id==2){
+                       $("#create,#update,#worker,#record,#degroup,#complete").removeAttr("hidden");
+
+                   }
+                   if(data.data.position_id==4||data.data.position_id==3){
+                       $("#create,#update,#worker,#record,#con,#degroup,#complete").removeAttr("hidden");
+                   }
+               }
+           })
+
+
+           /**修改信息*/
+           $(function () {
+               $("#update").click(function () {
+                   $("#group_name,#task_dif,#task_deadline,#task_info").removeAttr("disabled");
+                   $("#up").removeAttr("hidden");
+               })
+               $("#up").click(function () {
+                   var id = $("#select").val();
+                   var group_name = $("#group_name").val();
+                   var task_info = $("#task_info").val();
+                   var task_dif = $("#task_dif").val();
+                   var task_deadline = $("#task_deadline").val();
+
+                   var json = {
+                       "id": id,
+                       "group_name": group_name,
+                       "task_info": task_info,
+                       "task_dif": task_dif,
+                       "task_deadline": task_deadline
+                   };
+                   $.post("SmallGroupServlet?method=updateInfo", json, function (data) {
+                       if (data.success) {
+                           alert(data.message);
+                           location.reload();
+                       } else {
+                           alert(data.message);
+                       }
+                   })
+               })
+
+               /**交换包工头*/
+                var cont ="";
+               $("#con").click(function () {
+                   cont=$("#contractor_num").val();
+                   $("#contractor_num").removeAttr("disabled");
+                   $("#co").removeAttr("hidden");
+               })
+               $("#co").click(function () {
+                   var id = $("#select").val();
+                   var contractor_num = $("#contractor_num").val();
+                   var json = {"contractor_num": contractor_num, "id": id, "cont": cont};
+                   $.post("SmallGroupServlet?method=upContractor", json, function (data) {
+                       if (data.success) {
+                           alert(data.message);
+                           location.reload()
+                       } else {
+                           alert(data.message);
+                       }
+                   })
+               })
+
+               /**添加员工*/
+               $("#worker").click(function () {
+                   $("#upnumber,#uptask,#upworker").removeAttr("hidden");
+               })
+               $("#upworker").click(function () {
+                   var number = $("#upnumber").val();
+                   var task = $("#uptask").val();
+                   var gid = $("#select").val();
+                   var json = {"number": number, "task": task, "gid": gid};
+                   $.post("SmallGroupServlet?method=upWorker", json, function (data) {
+                       if (data.success) {
+                           alert(data.message);
+                           location.reload();
+                       } else {
+                           alert(data.message);
+                       }
+                   })
+               })
+
+               /**删除员工*/
+               function deWo() {
+                   var gid = $("#select").val();
+                   var denumber = $(this).val();
+                   var json = {"gid": gid, "denumber": denumber}
+                   $.post("SmallGroupServlet?method=deWorker", json, function (data) {
+                       if (data.success) {
+                           alert(data.message);
+                           location.reload();
+                       } else {
+                           alert(data.message)
+                       }
+                   })
+               }
+
+               $("#table").on('click', '.bde', deWo);
+
+               /**完成任务*/
+               $("#complete").click(function (){
+                   var gid=$("#select").val();
+                   var json={"gid":gid};
+                   $.post("SmallGroupServlet?method=completeTask",json,function (data){
+                       if(data.success){
+                           alert(data.message);
+                           location.reload();
+                       }else {
+                           alert(data.message);
+                       }
+                   })
+               })
+
+               /**删除小组*/
+               $("#degroup").click(function () {
+                   var b = window.confirm("确定要删除当前小组吗？");
+                   if (b) {
+                       var gid = $("#select").val();
+                       var cont = $("#contractor_num").val();
+                       var json = {"gid": gid, "cont": cont};
+                       $.post("SmallGroupServlet?method=deGroup", json, function (data) {
+                           if (data.success) {
+                               alert(data.message);
+                               location.reload();
+                           } else {
+                               alert(data.message);
+                           }
+                       })
+                   }
+               })
+               /**小组记录*/
+               function formatDate(now){
+                   const date = new Date(now);
+                   var y =date.getFullYear();
+                   var m =date.getMonth()+1;
+                   var d =date.getDate();
+                   var h =date.getHours();
+                   var min=date.getUTCMinutes();
+                   var s = date.getSeconds();
+                   return y+'-'+m+'-'+d+' '+h+':'+min+':'+s;
+               }
+               function smallRecord() {
+                   var gid = $("#select").val();
+                   $.post("SmallGroupServlet?method=smallRecord&gid=" + gid, "", function (data) {
+                       var li = '<tr><th></th><th>时间</th><th>记录</th><th>删除</th></tr>';
+                       if (data.success) {
+                           for (i = 0; i < data.data.length; i++) {
+                               li += '<tr><td>' + i + '</td><td>' + formatDate(data.data[i].time) + '</td><td>' + data.data[i].record + '</td><td><button class="bde" value=' + data.data[i].id + '>删除</button></td></tr>'
+                           }
+                       }
+                       $("#recordtable").html(li);
+                   })
+               }
+               $("#record").click(smallRecord);
+
+
+               /**删除小组记录*/
+               function deRe() {
+                   var rid = $(this).val();
+                   var json = {"rid": rid};
+                   $.post("SmallGroupServlet?method=deSmallRecord", json, function (data) {
+                       if (data.success) {
+                           alert(data.message);
+                           smallRecord();
+                       } else {
+                           alert(data.message);
+                       }
+                   })
+               }
+
+               $("#recordtable").on('click', '.bde', deRe);
+
+           })
+
+    </script>
+
+</div>
+</body>
+</html>

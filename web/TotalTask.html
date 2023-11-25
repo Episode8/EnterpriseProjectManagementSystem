@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<script src="js/jquery-3.3.1.min.js"></script>
+<head>
+    <meta charset="UTF-8">
+    <title>总任务</title>
+</head>
+<script>
+    $.post("TaskServlet?method=AllTask","",function (data){
+        if(data.success){
+            var all=0;
+            var call=0;
+            for(i=0;i<data.data.length;i++){
+                if(data.data[i].task_completion==1){
+                    call++;
+                }
+                all++;
+            }
+            $("#span1").html(all);
+            $("#span2").html(call);
+        }else {
+            alert(data.message);
+        }
+    })
+</script>
+<body>
+
+<h1>总任务数：<span id="span1"></span></h1>
+<h1>已完成数：<span id="span2"></span></h1>
+</body>
+</html>

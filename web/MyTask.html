@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<script src="js/jquery-3.3.1.min.js"></script>
+<head>
+    <meta charset="UTF-8">
+    <title>我的任务</title>
+    <script>
+
+        $.post("TaskServlet?method=myTask","",function (data){
+        //返回的会是我的任务详情
+        if(data.success){
+            var completion = data.data.task_completion==1? "已完成":"未完成";
+            var li ='<li>我的小组：'+data.data.group_id+'    </li>'+
+                '<li>我的任务：'+data.data.task+'     </li>'+
+                '<li>是否完成：'+completion+'    </li>'
+            $("#ul1").html(li);
+
+            /**根据任务完成情况来设置完成按钮*/
+            if(data.data.task_completion==1){
+                $("#bt1").attr("disabled","disabled");
+            }
+        }else{
+            alert(data.message);
+            location.href="First.html";
+        }
+
+    },"json")
+
+
+
+
+
+
+
+    </script>
+</head>
+<body>
+<div>
+    <ul id="ul1">
+
+    </ul>
+</div>
+<span    id="span1"><input type="button" value="完成任务" class="button" id="bt1" ></span>
+</body>
+<script>
+    /**对提交按钮绑定单击事件*/
+
+    $("#bt1").click(function () {
+        var b = confirm("确认完成？");
+        if(b){
+            $.post("TaskServlet?method=taskCp","",function (data){
+                if(data.success){
+                    alert(data.message);
+                    location.reload();
+                }else {
+                    alert(data.message);
+                }
+            },"json")
+        }
+    })
+</script>
+</html>

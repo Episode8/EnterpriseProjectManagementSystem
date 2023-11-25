@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<script src="js/jquery-3.3.1.min.js"></script>
+<head>
+    <meta charset="UTF-8">
+    <title>工程队</title>
+
+    <style>
+        .div1{
+            border: #3498db solid 1px;
+            float: left;
+            width: 100px;
+            height: 600px;
+        }
+        #select{
+            width: auto;
+        }
+        .div1{
+            float: left;
+            margin: auto;
+        }
+        table {
+            border-collapse: collapse;
+            margin: 0 auto;
+            text-align: center;
+        }
+        table td, table th {
+            border: 1px solid #cad9ea;
+            color: #666;
+            height: 30px;
+        }
+        table thead th {
+            background-color: #CCE8EB;
+            width: 100px;
+        }
+        table tr:nth-child(odd) {
+            background: #fff;
+        }
+        table tr:nth-child(even) {
+            background: #F5FAFA;
+        }
+    </style>
+
+    <script>
+        $.post("EngineeringGroupServlet?method=findEGroupId","",function (data){
+            if(data.success){
+                var li = '<option value="">--请选择--</option>';
+                for(i=0;i<data.data.length;i++){
+                    var id= data.data[i].id;
+                    li+='<option value='+id+'>'+id+'</option>';
+                }
+                $("#select").html(li);
+            }else{
+                alert(data.message);
+            }
+        })
+
+        $(function (){
+            function findAll(){
+                var eid = $("#select").val();
+                /**找工程队信息*/
+                $.post("EngineeringGroupServlet?method=findGroupInfo&eid="+eid,"",function (data){
+                    if(data.success){
+                        var li = "";
+                        li+= '工程队名字:<textarea id="group_name" disabled>'+data.data.group_name +'</textarea><br>';
+                        li+= '任务:<textarea id="task_info" disabled>'+data.data.task_info +'</textarea><br>';
+                        li+= '任务难度:<textarea id="task_dif" disabled>'+data.data.task_dif +'</textarea><br>';
+                        li+= '任务期限:<input type="text" id="task_deadline" value='+data.data.task_deadline+' disabled><br>';
+                        li+= '施工经理:<textarea id="manager_num" disabled>'+data.data.manager_num +'</textarea><br>';
+                        li+= '总负责人:<textarea id="leader_num" disabled>'+data.data.leader_num +'</textarea><br>';
+                        li+= '是否完成:<input type="text" id="eg_completion" value='+data.data.eg_completion +' disabled><br>';
+
+                        $("#div21").html(li);
+                    }
+                })
+
+                /**找小组信息*/
+                $.post("EngineeringGroupServlet?method=findSmallOfEngineering&eid="+eid,"",function (data){
+                    var li = '<tr><th>小组id</th><th>任务期限</th><th>任务完成</th></tr>';
+                    if(data.success){
+                        for(i=0;i<data.data.length;i++){
+                            li+='<tr><td>'+data.data[i].id+'</td><td>'+data.data[i].task_deadline+'</td><td>'+data.data[i].sg_completion+'</td></tr>';
+                        }
+                    }
+                    $("#table").html(li);
+                })
+                $("#recordtable").html("");
+            }
+            $("#select").change(findAll);
+        })
+    </script>
+</head>
+<body>
+<div id="div1"class="div1">
+    选择工程队：<br>
+    <select id="select">
+
+    </select>
+
+</div>
+
+<div id="div2" class="div2">
+
+    <div id="div21">
+        工程队信息
+    </div>
+
+    <div id="div22">
+        <table id="table" width="800" ></table>
+    </div>
+
+
+</div>
+
+
+
+<div id="div4">
+    <a href="CreateEngineering.html"><button id="create" hidden="hidden">创建工程队</button></a>
+    <button id="update" hidden="hidden">修改信息</button><button id="up" hidden="hidden">提交</button>
+    <button id="man" hidden="hidden">换施工经理</button><button id="ma" hidden="hidden">换人</button>
+    <button id="complete" hidden="hidden">完成任务</button>
+    <button id="record" hidden="hidden">施工队记录</button>
+    <button id="deeng" hidden="hidden">删除施工队</button>
+    <a href="First.html"><button>返回首页</button></a>
+</div>
+
+<div id="div3">
+    <table id="recordtable"></table>
+</div>
+
+<script>
+    $.post("UserServlet?method=loadInfo","",function (data){
+        if(data.success){
+            if(data.data.position_id==3){
+                $("#create,#update,#record,#deeng,#complete").removeAttr("hidden");
+            }
+            if(data.data.position_id==4){
+                $("#create,#update,#man,#record,#deeng,#complete").removeAttr("hidden");
+            }
+        }
+    })
+    $(function (){
+        /**修改信息*/
+        $("#update").click(function (){
+            $("#group_name,#task_dif,#task_deadline,#task_info").removeAttr("disabled");
+            $("#up").removeAttr("hidden");
+        })
+        $("#up").click(function (){
+            var id = $("#select").val();
+            var group_name = $("#group_name").val();
+            var task_info = $("#task_info").val();
+            var task_dif = $("#task_dif").val();
+            var task_deadline = $("#task_deadline").val();
+            var json={
+                "id":id,
+                "group_name":group_name,
+                "task_info":task_info,
+                "task_dif":task_dif,
+                "task_deadline":task_deadline
+            }
+            $.post("EngineeringGroupServlet?method=updateEGroupInfo",json,function (data){
+                if(data.success){
+                    alert(data.message);
+                    location.reload();
+                }else{
+                    alert(data.message);
+                }
+            })
+        })
+          /**换施工经理*/
+          var preman = '';
+          $("#man").click(function (){
+              preman=$("#manager_num").val();
+              $("#manager_num").removeAttr("disabled");
+              $("#ma").removeAttr("hidden");
+          })
+          $("#ma").click(function (){
+              var id = $("#select").val();
+              var manager_num = $("#manager_num").val();
+              var json={"id":id,"manager_num":manager_num,"preman":preman};
+              $.post("EngineeringGroupServlet?method=updateManger",json,function (data){
+                  if(data.success){
+                      alert(data.message);
+                      location.reload();
+                  }else {
+                      alert(data.message);
+                  }
+              })
+          })
+
+        /**工程队记录*/
+        function formatDate(now){
+            const date = new Date(now);
+            var y =date.getFullYear();
+            var m =date.getMonth()+1;
+            var d =date.getDate();
+            var h =date.getHours();
+            var min=date.getUTCMinutes();
+            var s = date.getSeconds();
+            return y+'-'+m+'-'+d+' '+h+':'+min+':'+s;
+        }
+        function engineeringrecord(){
+            var eid =$("#select").val();
+            var json={"eid":eid};
+            $.post("EngineeringGroupServlet?method=findERecord",json,function (data){
+                var li = '<tr><th></th><th>时间</th><th>记录</th><th>删除</th></tr>';
+                if(data.success){
+                    for(i=0;i<data.data.length;i++){
+                        li += '<tr><td>' + i + '</td><td>' +formatDate(data.data[i].time) + '</td><td>' + data.data[i].record + '</td><td><button class="bde" value=' + data.data[i].id + '>删除</button></td></tr>'
+                    }
+                }
+                $("#recordtable").html(li);
+            })
+        }
+        $("#record").click(engineeringrecord);
+
+
+
+        /**删除工程队记录*/
+        function deERe(){
+            var rid=$(this).val();
+            var json={"rid":rid};
+            $.post("EngineeringGroupServlet?method=deleteERecord",json,function (data){
+                if (data.success) {
+                    alert(data.message);
+                    engineeringrecord();
+                } else {
+                    alert(data.message);
+                }
+            })
+        }
+        $("#recordtable").on('click','.bde',deERe);
+
+        /**删除工程队*/
+        $("#deeng").click(function (){
+            var b = confirm("确认要删除工程队吗？");
+            if(b){
+                var eid = $("#select").val();
+                var manager_num =$("#manager_num").val();
+                var json = {"eid":eid,"manager_num":manager_num};
+                $.post("EngineeringGroupServlet?method=deleteEG",json,function (data){
+                    if(data.success){
+                        alert(data.message);
+                        location.reload();
+                    }else {
+                        alert(data.message);
+                    }
+                })
+            }
+        })
+
+        /**完成任务*/
+        $("#complete").click(function (){
+            var eid = $("#select").val();
+            var json ={"eid":eid};
+            $.post("EngineeringGroupServlet?method=completeETask",json,function (data){
+                if(data.success){
+                    alert(data.message);
+                    location.reload();
+                }else {
+                    alert(data.message);
+                }
+            })
+        })
+
+    })
+
+
+</script>
+</body>
+</html>

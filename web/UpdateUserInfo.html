@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<script src="js/jquery-3.3.1.min.js"></script>
+<head>
+    <meta charset="UTF-8">
+    <title>个人信息</title>
+</head>
+
+<style>
+    #div1{
+        margin: auto;
+    }
+    form{
+        margin: auto;
+    }
+</style>
+<script>
+    $.post("UserServlet?method=loadInfo","",function (data){
+        if(data.success){
+            li='';
+            li+='职工号<input id=number value='+data.data.number+' disabled><br>';
+            li+='职位<input id=position_id value='+data.data.position_id+' disabled><br>';
+            li+='姓名<input id=name value='+data.data.name+' disabled><br>';
+            li+='性别<input id=gender value='+data.data.gender+' disabled><br>';
+            li+='入职日期<input id=hiredate value='+data.data.hiredate+' disabled><br>';
+            li+='电话号码<input id=phone_number value='+data.data.phone_number+' disabled><br>';
+            li+='密码<input type="password" id=password value='+data.data.password+' disabled><br>';
+            $("#Info").html(li);
+        }
+    })
+</script>
+<body>
+
+<div id="div1">
+<form id="Info">
+
+</form>
+</div>
+<button id="updateUserInfo">修改信息</button><button id="up" hidden="hidden">提交</button>
+
+<script>
+    $("#updateUserInfo").click(function (){
+        $("#name,#gender,#hiredate,#phone_number,#password").removeAttr("disabled");
+        $("#up").removeAttr("hidden");
+
+    })
+    $(function(){
+      $("#up").click(function (){
+          var number=$("#number").val();
+          var position_id=$("#position_id").val();
+          var name=$("#name").val();
+          var gender=$("#gender").val();
+          var hiredate=$("#hiredate").val();
+          var phone_number=$("#phone_number").val();
+          var password=$("#password").val();
+          var json={
+              "number":number,
+              "position_id":position_id,
+              "name":name,
+              "gender":gender,
+              "hiredate":hiredate,
+              "phone_number":phone_number,
+              "password":password
+          }
+          $.post("UserServlet?method=updateInfo",json,function (data){
+              if(data.success){
+                  alert(data.message);
+                  location.reload();
+              }else {
+                  alert(data.message);
+              }
+          })
+      })
+    })
+</script>
+</body>
+</html>
